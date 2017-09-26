@@ -2,6 +2,8 @@ package main
 
 import (
 	"bytes"
+	"compress/gzip"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -12,7 +14,7 @@ import (
 	"strconv"
 )
 
-var changes = regexp.MustCompile(`Hello`)
+var changes = regexp.MustCompile(`Trump|Corbyn`)
 
 func newSingleHostReverseProxy(url *url.URL) *httputil.ReverseProxy {
 	rp := httputil.NewSingleHostReverseProxy(url)
@@ -22,7 +24,14 @@ func newSingleHostReverseProxy(url *url.URL) *httputil.ReverseProxy {
 		r.Host = url.Host
 	}
 	rp.ModifyResponse = func(resp *http.Response) (err error) {
-		b, err := ioutil.ReadAll(resp.Body)
+
+		reader, err := gzip.NewReader(resp.Body)
+		if err != nil {
+			return fmt.Errorf("gzip.NewReader: %v", err)
+		}
+
+		b, err := ioutil.ReadAll(reader)
+		log.Println(string(b))
 		if err != nil {
 			return err
 		}
@@ -31,8 +40,20 @@ func newSingleHostReverseProxy(url *url.URL) *httputil.ReverseProxy {
 			return err
 		}
 		b = changes.ReplaceAll(b, []byte(`Larry`))
-		body := ioutil.NopCloser(bytes.NewReader(b))
-		resp.Body = body
+		//		body := ioutil.NopCloser(bytes.NewReader(b))
+
+		var buffer bytes.Buffer
+
+		writer := gzip.NewWriter(&buffer)
+		if _, err := writer.Write(b); err != nil {
+			return fmt.Errorf("writer.Write: %v", err)
+		}
+		if err := writer.Close(); err != nil {
+			return fmt.Errorf("writer.Close: %v", err)
+		}
+
+		resp.Body = ioutil.NopCloser(bytes.NewReader(buffer.Bytes()))
+
 		resp.ContentLength = int64(len(b))
 		resp.Header.Set("Content-Length", strconv.Itoa(len(b)))
 		return nil
@@ -41,7 +62,7 @@ func newSingleHostReverseProxy(url *url.URL) *httputil.ReverseProxy {
 }
 
 func main() {
-	serverURL, err := url.Parse("https://hello.natalian.org")
+	serverURL, err := url.Parse("http://www.bbc.com")
 	if err != nil {
 		log.Fatal("URL failed to parse")
 	}
