@@ -1,0 +1,14 @@
+{
+	"name": "bbc",
+	"profile": "mine",
+	"regions": ["eu-west-2"],
+	"stages": {
+		"development": {
+			"domain": "dev.m.natalian.org"
+		},
+		"production": {
+			"domain": "m.natalian.org"
+		}
+	}
+}
+
