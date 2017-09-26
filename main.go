@@ -12,7 +12,7 @@ import (
 	"strconv"
 )
 
-var changes = regexp.MustCompile(`World`)
+var changes = regexp.MustCompile(`Hello`)
 
 func newSingleHostReverseProxy(url *url.URL) *httputil.ReverseProxy {
 	rp := httputil.NewSingleHostReverseProxy(url)
@@ -30,7 +30,7 @@ func newSingleHostReverseProxy(url *url.URL) *httputil.ReverseProxy {
 		if err != nil {
 			return err
 		}
-		b = changes.ReplaceAll(b, nil)
+		b = changes.ReplaceAll(b, []byte(`Larry`))
 		body := ioutil.NopCloser(bytes.NewReader(b))
 		resp.Body = body
 		resp.ContentLength = int64(len(b))
