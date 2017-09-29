@@ -15,6 +15,10 @@ import (
 )
 
 var changes = regexp.MustCompile(`Trump|Corbyn`)
+var plainHttp = regexp.MustCompile(`http:`)
+
+// var scriptTags = regexp.MustCompile(`<script.*</script>`)
+var scriptTags = regexp.MustCompile(`<script[^>]*>[\s\S]*?</script>`)
 
 func newSingleHostReverseProxy(url *url.URL) *httputil.ReverseProxy {
 	rp := httputil.NewSingleHostReverseProxy(url)
@@ -22,6 +26,8 @@ func newSingleHostReverseProxy(url *url.URL) *httputil.ReverseProxy {
 	rp.Director = func(r *http.Request) {
 		oldDirector(r)
 		r.Host = url.Host
+		delete(r.Header, "X-Forwarded-For")
+		log.Println(r.URL.Path)
 	}
 	rp.ModifyResponse = func(resp *http.Response) (err error) {
 
@@ -31,7 +37,7 @@ func newSingleHostReverseProxy(url *url.URL) *httputil.ReverseProxy {
 		}
 
 		b, err := ioutil.ReadAll(reader)
-		log.Println(string(b))
+		// log.Println(string(b))
 		if err != nil {
 			return err
 		}
@@ -40,6 +46,9 @@ func newSingleHostReverseProxy(url *url.URL) *httputil.ReverseProxy {
 			return err
 		}
 		b = changes.ReplaceAll(b, []byte(`Larry`))
+		b = plainHttp.ReplaceAll(b, nil)
+		b = scriptTags.ReplaceAll(b, nil)
+
 		//		body := ioutil.NopCloser(bytes.NewReader(b))
 
 		var buffer bytes.Buffer
@@ -62,7 +71,7 @@ func newSingleHostReverseProxy(url *url.URL) *httputil.ReverseProxy {
 }
 
 func main() {
-	serverURL, err := url.Parse("http://www.bbc.com")
+	serverURL, err := url.Parse("http://www.bbc.co.uk")
 	if err != nil {
 		log.Fatal("URL failed to parse")
 	}
