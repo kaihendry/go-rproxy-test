@@ -18,7 +18,7 @@ var changes = regexp.MustCompile(`Trump|Corbyn`)
 var plainHttp = regexp.MustCompile(`http:`)
 
 // var scriptTags = regexp.MustCompile(`<script.*</script>`)
-var scriptTags = regexp.MustCompile(`<script[^>]*>[\s\S]*?</script>`)
+// var scriptTags = regexp.MustCompile(`<script[^>]*>[\s\S]*?</script>`)
 
 func newSingleHostReverseProxy(url *url.URL) *httputil.ReverseProxy {
 	rp := httputil.NewSingleHostReverseProxy(url)
@@ -47,7 +47,7 @@ func newSingleHostReverseProxy(url *url.URL) *httputil.ReverseProxy {
 		}
 		b = changes.ReplaceAll(b, []byte(`Larry`))
 		b = plainHttp.ReplaceAll(b, nil)
-		b = scriptTags.ReplaceAll(b, nil)
+		// b = scriptTags.ReplaceAll(b, nil)
 
 		//		body := ioutil.NopCloser(bytes.NewReader(b))
 
