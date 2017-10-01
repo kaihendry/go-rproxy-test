@@ -2,13 +2,12 @@
 	"name": "bbc",
 	"profile": "mine",
 	"regions": ["eu-west-2"],
+	"cors": {
+		"enable": true
+	},
 	"stages": {
 		"development": {
-			"domain": "dev.m.natalian.org"
-		},
-		"production": {
-			"domain": "m.natalian.org"
+			"domain": "bbc.natalian.org"
 		}
 	}
 }
-

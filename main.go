@@ -30,7 +30,7 @@ func newSingleHostReverseProxy(url *url.URL) *httputil.ReverseProxy {
 		if err != nil {
 			return err
 		}
-		b = changes.ReplaceAll(b, []byte(`Larry`))
+		b = changes.ReplaceAll(b, []byte(`HOWDY`))
 		body := ioutil.NopCloser(bytes.NewReader(b))
 		resp.Body = body
 		resp.ContentLength = int64(len(b))
